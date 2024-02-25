@@ -1,0 +1,81 @@
+name: Buid_KSU
+
+on:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: true
+        default: 'true'
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Setup kernel source
+      run: |
+        echo "Free space:"
+        df -h
+        cd $GITHUB_WORKSPACE
+        sudo apt-get install repo -y
+        mkdir android-kernel && cd android-kernel
+        repo init --depth=1 --u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
+        repo --version
+        repo --trace sync -c -j$(nproc --all) --no-tags
+        df -h
+        rm -rf .repo
+
+    - name: Setup KernelSU
+      env:
+        PATCH_PATH: ${{ inputs.patch_path }}
+        IS_DEBUG_KERNEL: ${{ inputs.debug }}
+      run: |
+        cd $GITHUB_WORKSPACE/android-kernel
+        echo "[+] KernelSU setup"
+        curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+
+    - name: Make working directory clean to avoid dirty
+      working-directory: android-kernel
+      run: |
+        rm common/android/abi_gki_protected_exports_* || echo "No protected exports!"
+        git config --global user.email "bot@kernelsu.org"
+        git config --global user.name "KernelSUBot"
+        cd common/ && git add -A && git commit -a -m "Add KernelSU"
+        repo status
+
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@main
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+
+    - name: Build boot.img
+      working-directory: android-kernel
+      run: |
+        LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+
+    - name: Prepare artifacts
+      id: prepareArtifacts
+      run: |
+        mkdir output
+        cp android-kernel/out/*/dist/Image ./output/
+        git clone https://github.com/Kernel-SU/AnyKernel3
+        rm -rf ./AnyKernel3/.git
+        cp android-kernel/out/*/dist/Image ./AnyKernel3/
+
+    - name: Upload Image
+      uses: actions/upload-artifact@v4
+      with:
+       name: Image
+       path: ./output/*
+
+    - name: Upload AnyKernel3
+      uses: actions/upload-artifact@v4
+      with:
+        name: AnyKernel3-android12-5.10.209
+        path: ./AnyKernel3/*
