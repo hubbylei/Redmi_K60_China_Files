@@ -33,22 +33,12 @@ jobs:
         mkdir android-kernel && cd android-kernel
         repo init --depth=1 --u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
         repo sync -c -j1
-        df -h
 
     - name: Setup KernelSU
       run: |
         PATH="${HOME}/bin:${PATH}"
         cd $GITHUB_WORKSPACE/android-kernel
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-         repo status
-
-    - name: Make working directory clean to avoid dirty
-      run: |
-        PATH="${HOME}/bin:${PATH}"
-        cd $GITHUB_WORKSPACE/android-kernel
-        cd common/ && git add -A && git commit -a -m "Add KernelSU"
-        repo status
-        rm -rf $GITHUB_WORKSPACE/.repo
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@main
@@ -56,8 +46,14 @@ jobs:
 
     - name: Build boot.img
       run: |
+        PATH="${HOME}/bin:${PATH}"
+        cd $GITHUB_WORKSPACE/android-kernel/common
+        repo status
+        git add -A && git commit -a -m "Add KernelSU"
+        rm -rf $GITHUB_WORKSPACE/.repo
         cd $GITHUB_WORKSPACE/android-kernel
         LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+        df -h
 
     - name: Prepare artifacts
       id: prepareArtifacts
