@@ -1,4 +1,5 @@
 name: SSH
+
 on:
   workflow_dispatch:
     inputs:
@@ -6,12 +7,28 @@ on:
         description: 'SSH connection to Actions'
         required: true
         default: 'true'
+
+env:
+  TZ: Asia/Shanghai
+
 jobs:
   START:
     runs-on: ubuntu-20.04
-    steps: 
+
+    steps:
     - name: Checkout
       uses: actions/checkout@main
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
