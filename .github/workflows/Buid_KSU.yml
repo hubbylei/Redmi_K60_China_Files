@@ -26,8 +26,8 @@ jobs:
         cd $GITHUB_WORKSPACE
         mkdir -p ${HOME}/bin
         PATH="${HOME}/bin:${PATH}"
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ${HOME}/.bin/repo
-        chmod a+rx ${HOME}/.bin/repo
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ${HOME}/bin/repo
+        chmod a+rx ${HOME}/bin/repo
         git config --global user.email "hubbylei@hubbylei.dynu.net"
         git config --global user.name "hubbylei"
         mkdir android-kernel && cd android-kernel
