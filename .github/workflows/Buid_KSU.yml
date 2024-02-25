@@ -39,11 +39,13 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/android-kernel
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+         repo status
 
     - name: Make working directory clean to avoid dirty
       run: |
         cd $GITHUB_WORKSPACE/android-kernel
         cd common/ && git add -A && git commit -a -m "Add KernelSU"
+        repo status
         rm -rf $GITHUB_WORKSPACE/.repo
 
     - name: SSH connection to Actions
