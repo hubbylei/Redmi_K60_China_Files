@@ -28,6 +28,8 @@ jobs:
         PATH="${HOME}/.bin:${PATH}"
         curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
         chmod a+rx ~/.bin/repo
+        git config --global user.email "hubbylei@hubbylei.dynu.net"
+        git config --global user.name "hubbylei"
         mkdir android-kernel && cd android-kernel
         repo init --depth=1 --u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
         repo sync -c -j1
@@ -52,11 +54,8 @@ jobs:
     - name: Make working directory clean to avoid dirty
       run: |
         cd $GITHUB_WORKSPACE/android-kernel
-        git config --global user.email "hubbylei@hubbylei.dynu.net"
-        git config --global user.name "hubbylei"
         cd common/ && git add -A && git commit -a -m "Add KernelSU"
-        repo status
-        rm -rf .repo
+        rm -rf $GITHUB_WORKSPACE/.repo
 
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@main
