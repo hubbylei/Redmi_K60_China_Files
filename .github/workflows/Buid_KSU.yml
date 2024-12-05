@@ -26,7 +26,7 @@ jobs:
         cd ${GITHUB_WORKSPACE}
         mkdir -p ${HOME}/bin
         PATH="${HOME}/bin:${PATH}"
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ${HOME}/bin/repo
+        curl -LSs https://storage.googleapis.com/git-repo-downloads/repo > ${HOME}/bin/repo
         chmod a+x ${HOME}/bin/repo
         git config --global user.email "hubbylei@hubbylei.dynu.net"
         git config --global user.name "hubbylei"
