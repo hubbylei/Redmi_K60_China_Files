@@ -100,8 +100,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: Kernel-SU-${{ steps.build.outputs.KSU_ver }}
-        body_path: ${GITHUB_WORKSPACE}/release.txt
-        files: ${GITHUB_WORKSPACE}/AnyKernel3-android12-${{ steps.build.outputs.kernel_ver }}.zip
+        body_path: release.txt
+        files: AnyKernel3-android12-${{ steps.build.outputs.kernel_ver }}.zip
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
