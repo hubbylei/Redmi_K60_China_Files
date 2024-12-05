@@ -87,7 +87,7 @@ jobs:
        name: Image
        path: ./output/*
 
-    - Zip AnyKernel3
+    - name: Zip AnyKernel3
       if: steps.build.outputs.status == 'success' && !cancelled()
       run: |
         cd ${GITHUB_WORKSPACE}/AnyKernel3
