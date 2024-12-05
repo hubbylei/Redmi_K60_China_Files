@@ -44,12 +44,17 @@ jobs:
       uses: P3TERX/ssh2actions@main
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
 
-    - name: Build boot.img
+    - name: Build Image
+      id: build
       run: |
         PATH="${HOME}/bin:${PATH}"
         cd $GITHUB_WORKSPACE/android-kernel/common
         repo status
         git add -A && git commit -a -m "Add KernelSU"
+        VERSION=$(grep "^VERSION = .*$" Makefile | awk '{print $3}')
+        PATCHLEVEL=$(grep "^PATCHLEVEL = .*$" Makefile | awk '{print $3}')
+        SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
+        echo "kernel_ver="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}"" >> $GITHUB_OUTPUT
         rm -rf $GITHUB_WORKSPACE/.repo
         cd $GITHUB_WORKSPACE/android-kernel
         LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
@@ -73,5 +78,5 @@ jobs:
     - name: Upload AnyKernel3
       uses: actions/upload-artifact@v4
       with:
-        name: AnyKernel3-android12-5.10.209
+        name: AnyKernel3-android12-${{ steps.build.outputs.kernel_ver }}
         path: ./AnyKernel3/*
