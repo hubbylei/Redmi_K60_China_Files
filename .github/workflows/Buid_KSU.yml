@@ -23,21 +23,21 @@ jobs:
       run: |
         echo "Free space:"
         df -h
-        cd $GITHUB_WORKSPACE
+        cd ${GITHUB_WORKSPACE}
         mkdir -p ${HOME}/bin
         PATH="${HOME}/bin:${PATH}"
         curl https://storage.googleapis.com/git-repo-downloads/repo > ${HOME}/bin/repo
         chmod a+rx ${HOME}/bin/repo
         git config --global user.email "hubbylei@hubbylei.dynu.net"
         git config --global user.name "hubbylei"
-        mkdir android-kernel && cd android-kernel
+        mkdir ${GITHUB_WORKSPACE}/android-kernel && cd ${GITHUB_WORKSPACE}/android-kernel
         repo init --depth=1 --u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
         repo sync -c -j1
 
     - name: Setup KernelSU
       run: |
         PATH="${HOME}/bin:${PATH}"
-        cd $GITHUB_WORKSPACE/android-kernel
+        cd ${GITHUB_WORKSPACE}/android-kernel
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
 
     - name: SSH connection to Actions
@@ -48,35 +48,72 @@ jobs:
       id: build
       run: |
         PATH="${HOME}/bin:${PATH}"
-        cd $GITHUB_WORKSPACE/android-kernel/common
+        cd ${GITHUB_WORKSPACE}/android-kernel/common
         repo status
         git add -A && git commit -a -m "Add KernelSU"
         VERSION=$(grep "^VERSION = .*$" Makefile | awk '{print $3}')
         PATCHLEVEL=$(grep "^PATCHLEVEL = .*$" Makefile | awk '{print $3}')
         SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
-        echo "kernel_ver="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}"" >> $GITHUB_OUTPUT
-        rm -rf $GITHUB_WORKSPACE/.repo
-        cd $GITHUB_WORKSPACE/android-kernel
+        Kernel_ver=${VERSION}.${PATCHLEVEL}.${SUBLEVEL}
+        echo "kernel_ver=${Kernel_ver}" >> $GITHUB_OUTPUT
+        cd ${GITHUB_WORKSPACE}/android-kernel/KernelSU
+        KSU_ver=$(($(git rev-list --count HEAD) + 10200))
+        echo "KSU_ver=${KSU_ver}" >> $GITHUB_OUTPUT
+        rm -rf ${GITHUB_WORKSPACE}/android-kernel/.repo
+        cd ${GITHUB_WORKSPACE}/android-kernel
         LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+        echo "## :mega:Update content" > ${GITHUB_WORKSPACE}/release.txt
+        echo "![](https://img.shields.io/github/downloads/${{ github.repository }}/Kernel-SU-${KSU_ver}/total?style=flat-square)" >> ${GITHUB_WORKSPACE}/release.txt
+        echo "### Info" >> ${GITHUB_WORKSPACE}/release.txt
+        echo "**:minidisc: Kernel: ${Kernel_ver}**" >> ${GITHUB_WORKSPACE}/release.txt
+        echo "**:minidisc: Kernel-SU: ${KSU_ver}**" >> ${GITHUB_WORKSPACE}/release.txt
+        touch ${GITHUB_WORKSPACE}/release.txt
         df -h
+        echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Prepare artifacts
-      id: prepareArtifacts
+      if: steps.build.outputs.status == 'success' && !cancelled()
       run: |
-        mkdir output
-        cp android-kernel/out/*/dist/Image ./output/
-        git clone https://github.com/Kernel-SU/AnyKernel3
-        rm -rf ./AnyKernel3/.git
-        cp android-kernel/out/*/dist/Image ./AnyKernel3/
+        mkdir -p ${GITHUB_WORKSPACE}/output
+        cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/output/
+        git clone https://github.com/Kernel-SU/AnyKernel3 ${GITHUB_WORKSPACE}/AnyKernel3
+        rm -rf ${GITHUB_WORKSPACE}/AnyKernel3/.git
+        cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/AnyKernel3/
 
     - name: Upload Image
       uses: actions/upload-artifact@v4
+      if: steps.build.outputs.status == 'success' && !cancelled()
       with:
        name: Image
        path: ./output/*
 
-    - name: Upload AnyKernel3
-      uses: actions/upload-artifact@v4
+    - Zip AnyKernel3
+      if: steps.build.outputs.status == 'success' && !cancelled()
+      run: |
+        cd ${GITHUB_WORKSPACE}/AnyKernel3
+        zip -r ${GITHUB_WORKSPACE}/AnyKernel3-android12-${{ steps.build.outputs.kernel_ver }}.zip *
+
+    - name: Upload firmware to release
+      uses: softprops/action-gh-release@master
+      if: steps.build.outputs.status == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: AnyKernel3-android12-${{ steps.build.outputs.kernel_ver }}
-        path: ./AnyKernel3/*
+        tag_name: Kernel-SU-${{ steps.build.outputs.KSU_ver }}
+        body_path: ${GITHUB_WORKSPACE}/release.txt
+        files: ${GITHUB_WORKSPACE}/AnyKernel3-android12-${{ steps.build.outputs.kernel_ver }}.zip
+
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 0
+        keep_minimum_runs: 1
+
+    - name: Remove old Releases
+      uses: dev-drprasad/delete-older-releases@master
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 10
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
