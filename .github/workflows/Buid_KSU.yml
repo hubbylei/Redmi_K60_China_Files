@@ -73,12 +73,12 @@ jobs:
       id: tag
       if: steps.version.outputs.status == 'success' && !cancelled()
       run: |
-        echo "## :mega:Update content" > ${GITHUB_WORKSPACE}/release.txt
-        echo "![](https://img.shields.io/github/downloads/${{ github.repository }}/Kernel-SU-${{ steps.version.outputs.KSU_ver }}/total?style=flat-square)" >> ${GITHUB_WORKSPACE}/release.txt
+        echo "## :mega:Update content" > release.txt
+        echo "![](https://img.shields.io/github/downloads/${{ github.repository }}/Kernel-SU-${{ steps.version.outputs.KSU_ver }}/total?style=flat-square)" >> release.txt
         echo "### Info" >> ${GITHUB_WORKSPACE}/release.txt
-        echo "**:minidisc: Kernel: ${{ steps.version.outputs.kernel_ver }}**" >> ${GITHUB_WORKSPACE}/release.txt
-        echo "**:minidisc: Kernel-SU: ${{ steps.version.outputs.KSU_ver }}**" >> ${GITHUB_WORKSPACE}/release.txt
-        touch ${GITHUB_WORKSPACE}/release.txt
+        echo "**:minidisc: Kernel: ${{ steps.version.outputs.kernel_ver }}**" >> release.txt
+        echo "**:minidisc: Kernel-SU: ${{ steps.version.outputs.KSU_ver }}**" >> release.txt
+        touch release.txt
         tag=Kernel-SU-${{ steps.version.outputs.KSU_ver }}
         echo "release_tag=${tag}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
