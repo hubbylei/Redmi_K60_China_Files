@@ -93,7 +93,7 @@ jobs:
         zip -r ${GITHUB_WORKSPACE}/AnyKernel3-android12-${{ steps.version.outputs.kernel_ver }}.zip *
 
     - name: Upload release
-      uses: softprops/action-gh-release@master
+      uses: softprops/action-gh-release@v2
       if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
