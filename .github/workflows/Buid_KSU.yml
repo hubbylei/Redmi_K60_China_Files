@@ -47,9 +47,11 @@ jobs:
       id: build
       run: |
         PATH="${HOME}/bin:${PATH}"
+        cd ${GITHUB_WORKSPACE}/android-kernel
+        cp -f ${GITHUB_WORKSPACE}/gki_defconfig common/arch/arm64/configs/gki_defconfig
+        LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/config.sh gki_defconfig
         cd ${GITHUB_WORKSPACE}/android-kernel/common
         git add -A && git commit -a -m "Add KernelSU"
-        rm -rf ${GITHUB_WORKSPACE}/android-kernel/.repo
         cd ${GITHUB_WORKSPACE}/android-kernel
         LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
         echo "status=success" >> $GITHUB_OUTPUT
