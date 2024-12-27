@@ -90,7 +90,7 @@ jobs:
         rm -rf ${GITHUB_WORKSPACE}/AnyKernel3/.git*
         cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/AnyKernel3/
         cd ${GITHUB_WORKSPACE}/AnyKernel3
-        zip -r ${GITHUB_WORKSPACE}/AnyKernel3-android12-${{ steps.version.outputs.kernel_ver }}.zip *
+        zip -r ${GITHUB_WORKSPACE}/${{ steps.tag.outputs.release_tag }}-android12-${{ steps.version.outputs.kernel_ver }}.zip *
 
     - name: Upload release
       uses: softprops/action-gh-release@v2
