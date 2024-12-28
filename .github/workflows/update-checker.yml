@@ -31,7 +31,7 @@ jobs:
       run: |
         echo ${{ steps.getVersion.outputs.KSU_VER }} | tee .KSU_VER
 
-    - name: Trigger build
+    - name: Auto compile
       if: steps.cacheVersion.outputs.cache-hit != 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
