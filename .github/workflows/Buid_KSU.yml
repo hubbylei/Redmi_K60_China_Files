@@ -1,6 +1,8 @@
 name: Buid_KSU
 
 on:
+  repository_dispatch:
+    types: [Auto compile]
   workflow_dispatch:
     inputs:
       ssh:
