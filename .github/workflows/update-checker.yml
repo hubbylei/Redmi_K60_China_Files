@@ -30,10 +30,10 @@ jobs:
       run: |
         KSU_VER=$(cat .KSU_VER)
         if [ "${{ steps.getVersion.outputs.KSU_VER }}" != KSU_VER ];then
-          echo "comile='true'" >> $GITHUB_OUTPUT
+          echo "comile=true" >> $GITHUB_OUTPUT
           echo ${{ steps.getVersion.outputs.KSU_VER }} | tee .KSU_VER
         else
-          echo "comile='false'" >> $GITHUB_OUTPUT
+          echo "comile=false" >> $GITHUB_OUTPUT
         fi
 
 
