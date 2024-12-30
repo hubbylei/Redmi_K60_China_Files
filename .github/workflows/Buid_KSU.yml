@@ -55,7 +55,7 @@ jobs:
         cd ${GITHUB_WORKSPACE}/android-kernel/common
         git add -A && git commit -a -m "Add KernelSU"
         cd ${GITHUB_WORKSPACE}/android-kernel
-        LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh
+        LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh -j$(nproc) LLVM=1
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Create version
