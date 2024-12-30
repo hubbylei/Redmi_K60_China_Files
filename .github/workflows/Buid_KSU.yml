@@ -24,7 +24,7 @@ jobs:
     - name: Clone kernel source
       run: |
         echo "Free space:"
-        df -h
+        df -hT $PWD
         cd ${GITHUB_WORKSPACE}
         mkdir -p ${HOME}/bin
         PATH="${HOME}/bin:${PATH}"
