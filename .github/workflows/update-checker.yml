@@ -25,19 +25,20 @@ jobs:
         path: .KSU_VER
         key: KSU_VER
 
-    - name: Save New Commit Version
+    - name: Check Version
       id: check
       run: |
         KSU_VER=$(cat .KSU_VER)
         if [ "${{ steps.getVersion.outputs.KSU_VER }}" != KSU_VER ];then
           echo "comile='true'" >> $GITHUB_OUTPUT
+          echo ${{ steps.getVersion.outputs.KSU_VER }} | tee .KSU_VER
         else
           echo "comile='false'" >> $GITHUB_OUTPUT
         fi
-        echo ${{ steps.getVersion.outputs.KSU_VER }} | tee .KSU_VER
+
 
     - name: Auto compile
-      if: steps.check.outputs.cinuke == 'true'
+      if: steps.check.outputs.comile == 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
         event-type: Auto compile
