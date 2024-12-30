@@ -90,8 +90,8 @@ jobs:
     - name: Zip AnyKernel3
       if: steps.version.outputs.status == 'success' && !cancelled()
       run: |
-        git clone https://github.com/Kernel-SU/AnyKernel3 ${GITHUB_WORKSPACE}/AnyKernel3
-        rm -rf ${GITHUB_WORKSPACE}/AnyKernel3/.git*
+        mkdir -p ${GITHUB_WORKSPACE}/AnyKernel3
+        unzip AnyKernel3.zip -d ${GITHUB_WORKSPACE}/AnyKernel3
         cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/AnyKernel3/
         cd ${GITHUB_WORKSPACE}/AnyKernel3
         zip -r ${GITHUB_WORKSPACE}/${{ steps.tag.outputs.release_tag }}-android12-${{ steps.version.outputs.kernel_ver }}.zip *
