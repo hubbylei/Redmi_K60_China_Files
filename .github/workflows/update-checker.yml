@@ -12,27 +12,32 @@ jobs:
   check:
     runs-on: ubuntu-20.04
     steps:
-    - name: Get Commit Version
+    - name: Get Version
       id: getVersion
       run: |
         git clone https://github.com/tiann/KernelSU -b main
         cd KernelSU
         echo "KSU_VER=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
 
-    - name: Compare Commit Version
-      id: cacheVersion
+    - name: Get Cache Version
       uses: actions/cache@v4
       with:
-        path: .KSU_VER
-        key: KSU_VER-${{ steps.getVersion.outputs.KSU_VER }}
+        path: KSU_VER
+        key: KSU_VER
 
     - name: Save New Commit Version
-      if: steps.cacheVersion.outputs.cache-hit != 'true'
+      id: check
       run: |
-        echo ${{ steps.getVersion.outputs.KSU_VER }} | tee .KSU_VER
+        KSU_VER=$(cat KSU_VER)
+        if [ "${{ steps.getVersion.outputs.KSU_VER }}" != KSU_VER ];then
+          echo "comile='true'" >> $GITHUB_OUTPUT
+        else
+          echo "comile='false'" >> $GITHUB_OUTPUT
+        fi
+        echo ${{ steps.getVersion.outputs.KSU_VER }} | tee KSU_VER
 
     - name: Auto compile
-      if: steps.cacheVersion.outputs.cache-hit != 'true'
+      if: steps.check.outputs.cinuke == 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
         event-type: Auto compile
