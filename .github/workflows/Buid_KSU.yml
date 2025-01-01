@@ -33,8 +33,8 @@ jobs:
         git config --global user.email "hubbylei@hubbylei.dynu.net"
         git config --global user.name "hubbylei"
         mkdir ${GITHUB_WORKSPACE}/android-kernel && cd ${GITHUB_WORKSPACE}/android-kernel
-        repo init --depth=1 --u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
-        repo sync -c -j$(nproc)
+        repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
+        repo sync -cj$(nproc)
 
     - name: Setup KernelSU
       run: |
@@ -66,10 +66,10 @@ jobs:
         VERSION=$(grep "^VERSION = .*$" Makefile | awk '{print $3}')
         PATCHLEVEL=$(grep "^PATCHLEVEL = .*$" Makefile | awk '{print $3}')
         SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
-        Kernel_ver=${VERSION}.${PATCHLEVEL}.${SUBLEVEL}
-        echo "kernel_ver=${Kernel_ver}" >> $GITHUB_OUTPUT
+        Kernel_ver="android12-${VERSION}.${PATCHLEVEL}.${SUBLEVEL}"
         cd ${GITHUB_WORKSPACE}/android-kernel/KernelSU
         KSU_ver=$(($(git rev-list --count HEAD) + 10200))
+        echo "kernel_ver=${Kernel_ver}" >> $GITHUB_OUTPUT
         echo "KSU_ver=${KSU_ver}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
 
@@ -94,7 +94,7 @@ jobs:
         unzip AnyKernel3.zip -d ${GITHUB_WORKSPACE}/AnyKernel3
         cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/AnyKernel3/
         cd ${GITHUB_WORKSPACE}/AnyKernel3
-        zip -r ${GITHUB_WORKSPACE}/${{ steps.tag.outputs.release_tag }}-android12-${{ steps.version.outputs.kernel_ver }}.zip *
+        zip -r ${GITHUB_WORKSPACE}/${{ steps.tag.outputs.release_tag }}-${{ steps.version.outputs.kernel_ver }}.zip *
 
     - name: Upload release
       uses: softprops/action-gh-release@v2
@@ -104,18 +104,10 @@ jobs:
       with:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
-        files: ${{ steps.tag.outputs.release_tag }}-android12-${{ steps.version.outputs.kernel_ver }}.zip
+        files: ${{ steps.tag.outputs.release_tag }}-${{ steps.version.outputs.kernel_ver }}.zip
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
       with:
         retain_days: 0
         keep_minimum_runs: 1
-
-    - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@master
-      with:
-        keep_latest: 10
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
