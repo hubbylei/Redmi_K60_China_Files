@@ -13,37 +13,26 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: Get Version
-      id: getVersion
+      id: getHash
       run: |
         git clone https://github.com/tiann/KernelSU -b main
         cd KernelSU
-        echo "KSU_VER=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
+        echo "commitHash=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
 
     - name: Get Cache Version
-      id: cache
+      id: cacheHash
       uses: actions/cache@v4
       with:
-        path: .KSU_VER
-        key: KSU_VER
+        path: .commitHash
+        key: HEAD-${{ steps.getHash.outputs.commitHash }}
 
-    - name: Generate Cache
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: touch .KSU_VER
-
-    - name: Check Version
-      id: check
+    - name: Save New Commit Hash
+      if: steps.cacheHash.outputs.cache-hit != 'true'
       run: |
-        KSU_VER=$(cat .KSU_VER)
-        echo $KSU_VER
-        if [ "${{ steps.getVersion.outputs.KSU_VER }}" != "${KSU_VER}" ];then
-          echo "has_compile=true" >> $GITHUB_OUTPUT
-          echo ${{ steps.getVersion.outputs.KSU_VER }} | tee .KSU_VER
-        else
-          echo "has_compile=false" >> $GITHUB_OUTPUT
-        fi
+        echo ${{ steps.getHash.outputs.commitHash }} | tee .commitHash
 
     - name: Auto compile
-      if: steps.check.outputs.has_compile == 'true'
+      if: steps.cacheHash.outputs.cache-hit != 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
         event-type: Auto compile
