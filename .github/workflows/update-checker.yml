@@ -13,26 +13,26 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - name: Get Version
-      id: getHash
+      id: getver
       run: |
         git clone https://github.com/tiann/KernelSU -b main
         cd KernelSU
-        echo "commitHash=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
+        echo "ksu=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
 
     - name: Get Cache Version
-      id: cacheHash
+      id: getcache
       uses: actions/cache@v4
       with:
         path: .commitHash
-        key: HEAD-${{ steps.getHash.outputs.commitHash }}
+        key: KSU-${{ steps.getver.outputs.ksu }}
 
-    - name: Save New Commit Hash
-      if: steps.cacheHash.outputs.cache-hit != 'true'
+    - name: Save New Version
+      if: steps.getcache.outputs.cache-hit != 'true'
       run: |
-        echo ${{ steps.getHash.outputs.commitHash }} | tee .commitHash
+        echo ${{ steps.getver.outputs.ksu }} | tee .commitHash
 
     - name: Auto compile
-      if: steps.cacheHash.outputs.cache-hit != 'true'
+      if: steps.getcache.outputs.cache-hit != 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
         event-type: Auto compile
