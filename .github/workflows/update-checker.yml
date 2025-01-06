@@ -34,6 +34,7 @@ jobs:
       id: check
       run: |
         KSU_VER=$(cat .KSU_VER)
+        echo $KSU_VER
         if [ "${{ steps.getVersion.outputs.KSU_VER }}" != "${KSU_VER}" ];then
           echo "has_compile=true" >> $GITHUB_OUTPUT
           echo ${{ steps.getVersion.outputs.KSU_VER }} | tee .KSU_VER
