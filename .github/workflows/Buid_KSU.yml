@@ -50,6 +50,7 @@ jobs:
       run: |
         PATH="${HOME}/bin:${PATH}"
         cd ${GITHUB_WORKSPACE}/android-kernel
+        curl -skL "https://raw.githubusercontent.com/marywangran/westwood-sub/main/tcp_westwood.c" -o "common/net/ipv4/tcp_westwood.c"
         cp -f ${GITHUB_WORKSPACE}/gki_defconfig common/arch/arm64/configs/gki_defconfig
         LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/config.sh gki_defconfig
         cd ${GITHUB_WORKSPACE}/android-kernel/common
