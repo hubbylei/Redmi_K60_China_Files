@@ -97,6 +97,26 @@ jobs:
         cd ${GITHUB_WORKSPACE}/AnyKernel3
         zip -r ${GITHUB_WORKSPACE}/${{ steps.tag.outputs.release_tag }}-${{ steps.version.outputs.kernel_ver }}.zip *
 
+    - name: Download Manager
+      id: apk
+      if: steps.build.outputs.status == 'success' && !cancelled()
+      run: |
+        json_workflow_runs=$(curl -skL https://api.github.com/repos/tiann/KernelSU/actions/runs)
+        runs_url=$(echo $json_workflow_runs | jq '.workflow_runs[] | select(.name == "Build Manager")' | jq -r .url)
+        for url in $runs_url
+        do
+            artifacts_url=$url/artifacts
+            json_artifacts_url=$(curl -skL $artifacts_url)
+            archive_url=$(echo $json_artifacts_url | jq '.artifacts[] | select(.name == "manager")' | jq -r .archive_download_url)
+            if [ ! -z $archive_url ];then
+                curl -skL "${archive_url}" -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/manager.zip"
+                unzip -o "${GITHUB_WORKSPACE}/manager.zip" -d "${GITHUB_WORKSPACE}" > /dev/null
+                apk=$(ls *.apk)
+                echo "apk_name=${apk}" >> $GITHUB_OUTPUT
+                break
+            fi
+        done
+
     - name: Upload release
       uses: softprops/action-gh-release@v2
       if: steps.tag.outputs.status == 'success' && !cancelled()
@@ -105,7 +125,9 @@ jobs:
       with:
         tag_name: ${{ steps.tag.outputs.release_tag }}
         body_path: release.txt
-        files: ${{ steps.tag.outputs.release_tag }}-${{ steps.version.outputs.kernel_ver }}.zip
+        files: |
+            ${{ steps.tag.outputs.release_tag }}-${{ steps.version.outputs.kernel_ver }}.zip
+            ${{ steps.apk.outputs.apk_name }}
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
