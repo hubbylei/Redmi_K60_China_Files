@@ -101,7 +101,7 @@ jobs:
       id: apk
       if: steps.build.outputs.status == 'success' && !cancelled()
       run: |
-        json_workflow_runs=$(curl -skL https://api.github.com/repos/tiann/KernelSU/actions/runs)
+        json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" https://api.github.com/repos/tiann/KernelSU/actions/runs)
         runs_url=$(echo $json_workflow_runs | jq '.workflow_runs[] | select(.name == "Build Manager")' | jq -r .url)
         for url in $runs_url
         do
