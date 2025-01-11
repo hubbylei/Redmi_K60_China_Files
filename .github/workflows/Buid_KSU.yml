@@ -102,19 +102,37 @@ jobs:
       if: steps.build.outputs.status == 'success' && !cancelled()
       run: |
         json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" https://api.github.com/repos/tiann/KernelSU/actions/runs)
-        runs_url=$(echo $json_workflow_runs | jq '.workflow_runs[] | select(.name == "Build Manager")' | jq -r .url)
-        for url in $runs_url
+        total=$(echo $json_workflow_runs | jq .total_count)
+        pages=$(($total / 30))
+        if [ $(($total % 30)) -gt 0 ];then
+            pages=$(($pages + 1))
+        fi
+
+        i=1
+        while [ $i -le $pages ]
         do
-            artifacts_url=$url/artifacts
-            json_artifacts_url=$(curl -skL $artifacts_url)
-            archive_url=$(echo $json_artifacts_url | jq '.artifacts[] | select(.name == "manager")' | jq -r .archive_download_url)
-            if [ ! -z $archive_url ];then
-                curl -skL "${archive_url}" -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/manager.zip"
-                unzip -o "${GITHUB_WORKSPACE}/manager.zip" -d "${GITHUB_WORKSPACE}" > /dev/null
-                apk=$(ls *.apk)
-                echo "apk_name=${apk}" >> $GITHUB_OUTPUT
+            json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" "https://api.github.com/repos/tiann/KernelSU/actions/runs?page=${i}")
+            runs_url=$(echo $json_workflow_runs | jq '.workflow_runs[] | select(.name == "Build Manager")' | jq -r .url)
+            for url in ${runs_url}
+            do
+                artifacts_url=${url}/artifacts
+                json_artifacts_url=$(curl -skL -H "${{ secrets.HEADERS }}" $artifacts_url)
+                archive_url=$(echo $json_artifacts_url | jq '.artifacts[] | select(.name == "manager")' | jq -r .archive_download_url)
+                if [ ! -z ${archive_url} ];then
+                    echo "Download From ${archive_url}"
+                    curl -skL "${archive_url}" -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/manager.zip"
+                    unzip -o "${GITHUB_WORKSPACE}/manager.zip" -d "${GITHUB_WORKSPACE}" > /dev/null
+                    apk=$(ls ${GITHUB_WORKSPACE}/*.apk)
+                    echo "apk_name=${apk}" >> $GITHUB_OUTPUT
+                    break
+                fi
+            done
+
+            if [ ! -z ${archive_url} ];then
                 break
             fi
+
+            let i++
         done
 
     - name: Upload release
