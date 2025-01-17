@@ -12,8 +12,15 @@ jobs:
   check:
     runs-on: ubuntu-20.04
     steps:
-    - name: Get Version
-      id: getver
+    - name: Get KernelSU Version
+      id: getKSU
+      run: |
+        git clone https://github.com/tiann/KernelSU -b main
+        cd KernelSU
+        echo "KSU=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
+
+    - name: Get Kernel Version
+      id: getKernel
       run: |
         git clone --depth 1 https://android.googlesource.com/kernel/common -b android12-5.10-lts
         cd common
@@ -28,12 +35,12 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .commitHash
-        key: ${{ steps.getver.outputs.Kernel_VER }}
+        key: KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}
 
     - name: Save New Version
       if: steps.getcache.outputs.cache-hit != 'true'
       run: |
-        echo ${{ steps.getver.outputs.Kernel_VER }} | tee .commitHash
+        echo KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }} | tee .commitHash
 
     - name: Auto compile
       if: steps.getcache.outputs.cache-hit != 'true'
