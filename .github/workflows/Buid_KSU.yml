@@ -122,7 +122,7 @@ jobs:
                     echo "Download From ${archive_url}"
                     curl -skL "${archive_url}" -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/manager.zip"
                     unzip -o "${GITHUB_WORKSPACE}/manager.zip" -d "${GITHUB_WORKSPACE}" > /dev/null
-                    apk=$(ls ${GITHUB_WORKSPACE}/*.apk)
+                    apk=$(ls *.apk)
                     echo "apk_name=${apk}" >> $GITHUB_OUTPUT
                     break
                 fi
