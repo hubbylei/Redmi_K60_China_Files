@@ -15,21 +15,25 @@ jobs:
     - name: Get Version
       id: getver
       run: |
-        git clone https://github.com/tiann/KernelSU -b main
-        cd KernelSU
-        echo "ksu=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
+        git clone --depth 1 https://android.googlesource.com/kernel/common -b android12-5.10-lts
+        cd common
+        VERSION=$(grep "^VERSION = .*$" Makefile | awk '{print $3}')
+        PATCHLEVEL=$(grep "^PATCHLEVEL = .*$" Makefile | awk '{print $3}')
+        SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
+        Kernel_VER="android12-${VERSION}.${PATCHLEVEL}.${SUBLEVEL}"
+        echo "Kernel_VER=$Kernel_VER" >> "$GITHUB_OUTPUT"
 
     - name: Get Cache Version
       id: getcache
       uses: actions/cache@v4
       with:
         path: .commitHash
-        key: KSU-${{ steps.getver.outputs.ksu }}
+        key: ${{ steps.getver.outputs.Kernel_VER }}
 
     - name: Save New Version
       if: steps.getcache.outputs.cache-hit != 'true'
       run: |
-        echo ${{ steps.getver.outputs.ksu }} | tee .commitHash
+        echo ${{ steps.getver.outputs.Kernel_VER }} | tee .commitHash
 
     - name: Auto compile
       if: steps.getcache.outputs.cache-hit != 'true'
