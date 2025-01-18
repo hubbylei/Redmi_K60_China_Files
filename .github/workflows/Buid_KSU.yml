@@ -22,6 +22,7 @@ jobs:
       uses: actions/checkout@main
 
     - name: Clone kernel source
+      id: source
       run: |
         echo "Free space:"
         df -hT $PWD
@@ -32,9 +33,13 @@ jobs:
         chmod a+x ${HOME}/bin/repo
         git config --global user.email "hubbylei@hubbylei.dynu.net"
         git config --global user.name "hubbylei"
-        mkdir ${GITHUB_WORKSPACE}/android-kernel && cd ${GITHUB_WORKSPACE}/android-kernel
+        mkdir ${GITHUB_WORKSPACE}/android-kernel
+        cd ${GITHUB_WORKSPACE}/android-kernel
         repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
         repo sync -cj$(nproc)
+        cd ${GITHUB_WORKSPACE}/android-kernel/common
+        Kernel_HEAD=$(git rev-parse HEAD)
+        echo "Kernel_HEAD=${Kernel_HEAD}" >> $GITHUB_OUTPUT
 
     - name: Setup KernelSU
       run: |
@@ -81,7 +86,7 @@ jobs:
         echo "## :mega:Update content" > release.txt
         echo "![](https://img.shields.io/github/downloads/${{ github.repository }}/Kernel-SU-${{ steps.version.outputs.KSU_ver }}/total?style=flat-square)" >> release.txt
         echo "### Info" >> ${GITHUB_WORKSPACE}/release.txt
-        echo "**:minidisc: Latest Kernel: ${{ steps.version.outputs.kernel_ver }}**" >> release.txt
+        echo "**:minidisc: Latest Kernel: ${{ steps.version.outputs.kernel_ver }}(${{ steps.source.outputs.Kernel_HEAD }})**" >> release.txt
         echo "**:minidisc: Latest Kernel-SU: ${{ steps.version.outputs.KSU_ver }}**" >> release.txt
         touch release.txt
         tag=Kernel-SU-${{ steps.version.outputs.KSU_ver }}
