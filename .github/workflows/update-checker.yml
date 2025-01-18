@@ -29,8 +29,8 @@ jobs:
         SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
         Kernel_VER="android12-${VERSION}.${PATCHLEVEL}.${SUBLEVEL}"
         Kernel_HEAD=$(git rev-parse HEAD)
-        echo "Kernel_VER=$Kernel_VER" >> "$GITHUB_OUTPUT"
-        echo "Kernel_HEAD=$Kernel_HEAD" >> "$GITHUB_OUTPUT"
+        echo "Kernel_VER=${Kernel_VER}" >> "$GITHUB_OUTPUT"
+        echo "Kernel_HEAD=${Kernel_HEAD}" >> "$GITHUB_OUTPUT"
 
     - name: Get Cache Version
       id: getcache
