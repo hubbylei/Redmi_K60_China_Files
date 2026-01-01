@@ -41,7 +41,7 @@ jobs:
         restore-keys: HEAD-
 
     - name: Save New Version
-      if: steps.getcache.outputs.cache-hit != 'true'
+      id: save
       run: |
         if [ -f ./commitHash ];then
           cacheVer=$(cat ./commitHash)
@@ -57,7 +57,7 @@ jobs:
         fi
 
     - name: Auto compile
-      if: steps.getcache.outputs.cache-hit != 'true'
+      if: steps.save.outputs.build == 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
         event-type: Auto compile
