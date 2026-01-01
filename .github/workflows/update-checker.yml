@@ -48,7 +48,7 @@ jobs:
         fi
         echo -e "CacheVer:${cacheVer}\n"
         getVer=KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}-${{ steps.getKernel.outputs.Kernel_HEAD }}
-        echo -e "GetVer:${getver}\n"
+        echo -e "GetVer:${getVer}\n"
         if [ "${cacheVer}" == "${getVer}" ];then
           echo "build=false" >> "$GITHUB_OUTPUT"
         else
