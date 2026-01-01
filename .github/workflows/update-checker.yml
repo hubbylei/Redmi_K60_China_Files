@@ -17,7 +17,7 @@ jobs:
       run: |
         git clone https://github.com/tiann/KernelSU -b main
         cd KernelSU
-        echo "KSU=$(($(git rev-list --count HEAD) + 10200))" >> "$GITHUB_OUTPUT"
+        echo "KSU=$(($(git rev-list --count HEAD) + 30000))" >> "$GITHUB_OUTPUT"
 
     - name: Get Kernel Version
       id: getKernel

@@ -71,7 +71,7 @@ jobs:
         SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
         Kernel_ver="android12-${VERSION}.${PATCHLEVEL}.${SUBLEVEL}"
         cd ${GITHUB_WORKSPACE}/android-kernel/KernelSU
-        KSU_ver=$(($(git rev-list --count HEAD) + 10200))
+        KSU_ver=$(($(git rev-list --count HEAD) + 30000))
         echo "kernel_ver=${Kernel_ver}" >> $GITHUB_OUTPUT
         echo "KSU_ver=${KSU_ver}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
