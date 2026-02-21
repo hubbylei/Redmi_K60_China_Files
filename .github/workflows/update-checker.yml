@@ -15,15 +15,15 @@ jobs:
     - name: Get KernelSU Version
       id: getKSU
       run: |
-        git clone https://github.com/tiann/KernelSU -b main
-        cd KernelSU
+        git clone https://github.com/tiann/KernelSU -b main ${GITHUB_WORKSPACE}/KernelSU
+        cd ${GITHUB_WORKSPACE}/KernelSU
         echo "KSU=$(($(git rev-list --count HEAD) + 30000))" >> "$GITHUB_OUTPUT"
 
     - name: Get Kernel Version
       id: getKernel
       run: |
-        git clone --depth 1 https://android.googlesource.com/kernel/common -b android12-5.10-lts
-        cd common
+        git clone --depth 1 https://android.googlesource.com/kernel/common -b android12-5.10-lts ${GITHUB_WORKSPACE}/common
+        cd ${GITHUB_WORKSPACE}/common
         VERSION=$(grep "^VERSION = .*$" Makefile | awk '{print $3}')
         PATCHLEVEL=$(grep "^PATCHLEVEL = .*$" Makefile | awk '{print $3}')
         SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
