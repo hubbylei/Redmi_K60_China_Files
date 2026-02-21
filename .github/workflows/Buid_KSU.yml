@@ -28,8 +28,6 @@ jobs:
         PATH="${HOME}/bin:${PATH}"
         curl -LSs https://storage.googleapis.com/git-repo-downloads/repo > ${HOME}/bin/repo
         chmod a+x ${HOME}/bin/repo
-        git config --global user.email "hubbylei@hubbylei.dynu.net"
-        git config --global user.name "hubbylei"
         mkdir ${GITHUB_WORKSPACE}/android-kernel
         cd ${GITHUB_WORKSPACE}/android-kernel
         repo init --depth 1 -u https://android.googlesource.com/kernel/manifest -b common-android12-5.10-lts
@@ -138,7 +136,7 @@ jobs:
         done
 
     - name: Upload release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@master
       if: steps.tag.outputs.status == 'success' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
