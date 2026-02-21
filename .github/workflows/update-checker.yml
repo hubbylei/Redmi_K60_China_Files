@@ -36,7 +36,7 @@ jobs:
       id: getcache
       uses: actions/cache@v4
       with:
-        path: ${GITHUB_WORKSPACE}/commitHash
+        path: commitHash
         key: HEAD-${{ github.sha }}
         restore-keys: HEAD-
 
