@@ -36,23 +36,23 @@ jobs:
       id: getcache
       uses: actions/cache@v4
       with:
-        path: ${GITHUB_WORKSPACE}/.commitHash
+        path: ${GITHUB_WORKSPACE}/commitHash
         key: HEAD-${{ github.sha }}
         restore-keys: HEAD-
 
     - name: Save New Version
       id: save
       run: |
-        if [ -f ${GITHUB_WORKSPACE}/.commitHash ];then
-          cacheVer=$(cat ${GITHUB_WORKSPACE}/.commitHash)
+        if [ -f ${GITHUB_WORKSPACE}/commitHash ];then
+          cacheVer=$(cat ${GITHUB_WORKSPACE}/commitHash)
         fi
         echo -e "CacheVer:\n${cacheVer}"
         getVer=KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}-${{ steps.getKernel.outputs.Kernel_HEAD }}
         echo -e "GetVer:\n${getVer}"
         if [ "${cacheVer}" != "${getVer}" ];then
           echo "build=true" >> "$GITHUB_OUTPUT"
-          echo ${getVer} | tee ${GITHUB_WORKSPACE}/.commitHash
-          touch ${GITHUB_WORKSPACE}/.commitHash
+          echo ${getVer} | tee ${GITHUB_WORKSPACE}/commitHash
+          touch ${GITHUB_WORKSPACE}/commitHash
         else
           echo "build=false" >> "$GITHUB_OUTPUT"
         fi
