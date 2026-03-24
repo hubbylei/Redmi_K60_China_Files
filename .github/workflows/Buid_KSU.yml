@@ -114,10 +114,9 @@ jobs:
         while [ $i -le $pages ]
         do
             json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" "https://api.github.com/repos/tiann/KernelSU/actions/runs?page=${i}")
-            runs_url=$(echo $json_workflow_runs | jq '.workflow_runs[] | select(.name == "Build Manager")' | jq -r .url)
-            for url in ${runs_url}
+            artifacts_urls=$(echo $json_workflow_runs | jq '.workflow_runs[] | select(.name == "Build Manager")' | jq -r .artifacts_url)
+            for artifacts_url in ${artifacts_urls}
             do
-                artifacts_url=${url}/artifacts
                 json_artifacts_url=$(curl -skL -H "${{ secrets.HEADERS }}" $artifacts_url)
                 archive_url=$(echo $json_artifacts_url | jq '.artifacts[] | select(.name == "manager")' | jq -r .archive_download_url)
                 if [ ! -z ${archive_url} ];then
