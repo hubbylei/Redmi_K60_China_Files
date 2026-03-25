@@ -95,7 +95,6 @@ jobs:
       env:
         KSU: ${{ steps.version.outputs.KSU_ver }}
         HEADERS: ${{ secrets.HEADERS }}
-        WORKSPACE: ${GITHUB_WORKSPACE}
 
     - name: Generate release tag
       id: tag
