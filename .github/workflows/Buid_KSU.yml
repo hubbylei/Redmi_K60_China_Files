@@ -134,6 +134,7 @@ jobs:
                         apk_ver=$(echo ${apk} | sed 's/^.*_\(.*\)-.*/\1/')
                         if [ "${apk_ver}" == "${{ steps.version.outputs.KSU_ver }}" ];then
                             echo "Manager: ${apk}"
+                            echo "apk_name=${apk}" >> $GITHUB_OUTPUT
                             break
                         else
                             rm -f "${GITHUB_WORKSPACE}/${apk}"
@@ -150,12 +151,13 @@ jobs:
         done
         
         if [ "${apk}" == "" ];then
-            json_latest=$(curl -skL -H "${{ secrets.HEADERS }}" https://api.github.com/repos/tiann/KernelSU/releases/latest)
+            json_latest=$(curl -skL -H "${{ secrets.HEADERS }}" "https://api.github.com/repos/tiann/KernelSU/releases/latest")
             json_asset=$(echo ${json_latest} | jq '.assets[] | select(.content_type == "application/vnd.android.package-archive")')
             apk_name=$(echo ${json_asset} | jq -r .name)
             apk_url=$(echo ${json_asset} | jq -r .browser_download_url)
             echo "Manager: ${apk_name}"
             curl -skL -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/${apk_name}" "${apk_url}"
+            echo "apk_name=${apk_name}" >> $GITHUB_OUTPUT
         fi
 
     - name: Upload release
