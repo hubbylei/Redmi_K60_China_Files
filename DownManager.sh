@@ -2,7 +2,7 @@
 
 headers=$HEADERS
 KSU_ver=$KSU
-GITHUB_WORKSPACE=$(pwd)
+WorkDir=$WORKSPACE
 
 json_workflow_runs=$(curl -skL -H "${headers}" "https://api.github.com/repos/tiann/KernelSU/actions/runs")
 total=$(echo ${json_workflow_runs} | jq .total_count)
@@ -25,19 +25,19 @@ do
             json_artifacts_url=$(curl -skL -H "${headers}" ${artifacts_url})
             archive_url=$(echo ${json_artifacts_url} | jq '.artifacts[] | select(.name == "manager")' | jq -r .archive_download_url)
             if [ ! -z ${archive_url} ];then
-                curl -skL -H "${headers}" -o "${GITHUB_WORKSPACE}/manager.zip" "${archive_url}"
-                unzip -o "${GITHUB_WORKSPACE}/manager.zip" -d "${GITHUB_WORKSPACE}" > /dev/null
+                curl -skL -H "${headers}" -o "${WorkDir}/manager.zip" "${archive_url}"
+                unzip -o "${WorkDir}/manager.zip" -d "${WorkDir}" > /dev/null
                 if [ $? -ne 0 ];then
                     continue
                 fi
-                rm -f "${GITHUB_WORKSPACE}/manager.zip"
+                rm -f "${WorkDir}/manager.zip"
                 apk=$(ls *.apk)
                 apk_ver=$(echo ${apk} | sed 's/^.*_\(.*\)-.*/\1/')
                 if [ "${apk_ver}" == "${KSU_ver}" ];then
                     echo "Manager: ${apk}"
                     break
                 else
-                    rm -f "${GITHUB_WORKSPACE}/${apk}"
+                    rm -f "${WorkDir}/${apk}"
                     apk=""
                 fi
             fi
@@ -56,5 +56,5 @@ if [ "${apk}" == "" ];then
     apk_name=$(echo ${json_asset} | jq -r .name)
     apk_url=$(echo ${json_asset} | jq -r .browser_download_url)
     echo "Manager: ${apk_name}"
-    curl -skL -H "${headers}" -o "${GITHUB_WORKSPACE}/${apk_name}" "${apk_url}"
+    curl -skL -H "${headers}" -o "${WorkDir}/${apk_name}" "${apk_url}"
 fi

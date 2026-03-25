@@ -15,7 +15,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
@@ -61,7 +61,7 @@ jobs:
         LTO=thin BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh -j$(nproc) LLVM=1
         echo "status=success" >> $GITHUB_OUTPUT
 
-    - name: Create version
+    - name: Generate version
       id: version
       if: steps.build.outputs.status == 'success' && !cancelled()
       run: |
@@ -76,6 +76,27 @@ jobs:
         echo "KSU_ver=${KSU_ver}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
 
+    - name: Zip AnyKernel3
+      if: steps.version.outputs.status == 'success' && !cancelled()
+      run: |
+        mkdir -p ${GITHUB_WORKSPACE}/AnyKernel3
+        unzip AnyKernel3.zip -d ${GITHUB_WORKSPACE}/AnyKernel3
+        cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/AnyKernel3/
+        cd ${GITHUB_WORKSPACE}/AnyKernel3
+        zip -r ${GITHUB_WORKSPACE}/${{ steps.tag.outputs.release_tag }}-${{ steps.version.outputs.kernel_ver }}.zip *
+
+    - name: Download Manager
+      id: apk
+      if: steps.version.outputs.status == 'success' && !cancelled()
+      run: |
+        chmod +x ./DownManager.sh && ./DownManager.sh
+        apk=$(ls *.apk)
+        echo "apk_name=${apk}" >> $GITHUB_OUTPUT
+      env:
+        KSU: ${{ steps.version.outputs.KSU_ver }}
+        HEADERS: ${{ secrets.HEADERS }}
+        WORKSPACE: ${GITHUB_WORKSPACE}
+
     - name: Generate release tag
       id: tag
       if: steps.version.outputs.status == 'success' && !cancelled()
@@ -89,26 +110,6 @@ jobs:
         tag=Kernel-SU-${{ steps.version.outputs.KSU_ver }}
         echo "release_tag=${tag}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
-
-    - name: Zip AnyKernel3
-      if: steps.version.outputs.status == 'success' && !cancelled()
-      run: |
-        mkdir -p ${GITHUB_WORKSPACE}/AnyKernel3
-        unzip AnyKernel3.zip -d ${GITHUB_WORKSPACE}/AnyKernel3
-        cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/AnyKernel3/
-        cd ${GITHUB_WORKSPACE}/AnyKernel3
-        zip -r ${GITHUB_WORKSPACE}/${{ steps.tag.outputs.release_tag }}-${{ steps.version.outputs.kernel_ver }}.zip *
-
-    - name: Download Manager
-      id: apk
-      if: steps.build.outputs.status == 'success' && !cancelled()
-      run: |
-        chmod +x ./DownManager.sh && ./DownManager.sh
-        apk=$(ls *.apk)
-        echo "apk_name=${apk}" >> $GITHUB_OUTPUT
-      env:
-        KSU: ${{ steps.version.outputs.KSU_ver }}
-        HEADERS: ${{ secrets.HEADERS }}
 
     - name: Upload release
       uses: softprops/action-gh-release@master
