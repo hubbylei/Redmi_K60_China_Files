@@ -103,8 +103,8 @@ jobs:
       id: apk
       if: steps.build.outputs.status == 'success' && !cancelled()
       run: |
-        json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" https://api.github.com/repos/tiann/KernelSU/actions/runs)
-        total=$(echo $json_workflow_runs | jq .total_count)
+        json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" "https://api.github.com/repos/tiann/KernelSU/actions/runs")
+        total=$(echo ${json_workflow_runs} | jq .total_count)
         pages=$(($total / 30))
         if [ $(($total % 30)) -gt 0 ];then
             pages=$(($pages + 1))
@@ -113,7 +113,7 @@ jobs:
         i=0
         while [ $i -lt $pages ]
         do
-            json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" https://api.github.com/repos/tiann/KernelSU/actions/runs?page=${i})
+            json_workflow_runs=$(curl -skL -H "${{ secrets.HEADERS }}" "https://api.github.com/repos/tiann/KernelSU/actions/runs?page=${i}")
             len=$(echo ${json_workflow_runs} | jq '.workflow_runs | length')
             j=0
             while [ $j -lt $len ]
@@ -121,10 +121,10 @@ jobs:
                 name=$(echo ${json_workflow_runs} | jq -r .workflow_runs[${j}].name)
                 if [ "${name}" == "Build Manager" ];then
                     artifacts_url=$(echo ${json_workflow_runs} | jq -r .workflow_runs[$j].artifacts_url)
-                    json_artifacts_url=$(curl -skL -H "${{ secrets.HEADERS }}" $artifacts_url)
+                    json_artifacts_url=$(curl -skL -H "${{ secrets.HEADERS }}" ${artifacts_url})
                     archive_url=$(echo ${json_artifacts_url} | jq '.artifacts[] | select(.name == "manager")' | jq -r .archive_download_url)
                     if [ ! -z ${archive_url} ];then
-                        curl -skL "${archive_url}" -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/manager.zip"
+                        curl -skL -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/manager.zip" "${archive_url}"
                         unzip -o "${GITHUB_WORKSPACE}/manager.zip" -d "${GITHUB_WORKSPACE}" > /dev/null
                         if [ $? -ne 0 ];then
                             continue
@@ -155,7 +155,7 @@ jobs:
             apk_name=$(echo ${json_asset} | jq -r .name)
             apk_url=$(echo ${json_asset} | jq -r .browser_download_url)
             echo "Manager: ${apk_name}"
-            curl -skL -H "${{ secrets.HEADERS }}" "${apk_url}" -o "${GITHUB_WORKSPACE}/${apk_name}"
+            curl -skL -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/${apk_name}" "${apk_url}"
         fi
 
     - name: Upload release
