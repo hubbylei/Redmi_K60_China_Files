@@ -2,7 +2,7 @@
 
 headers=$HEADERS
 KSU_ver=$KSU
-WorkDir=$WORKSPACE
+WorkDir=$(pwd)
 
 json_workflow_runs=$(curl -skL -H "${headers}" "https://api.github.com/repos/tiann/KernelSU/actions/runs")
 total=$(echo ${json_workflow_runs} | jq .total_count)
