@@ -11,8 +11,8 @@ if [ $(($total % 30)) -gt 0 ];then
     pages=$(($pages + 1))
 fi
 
-i=0
-while [ $i -lt $pages ]
+i=1
+while [ $i -le $pages ]
 do
     json_workflow_runs=$(curl -skL -H "${headers}" "https://api.github.com/repos/tiann/KernelSU/actions/runs?page=${i}")
     len=$(echo ${json_workflow_runs} | jq '.workflow_runs | length')
