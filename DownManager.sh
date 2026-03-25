@@ -51,10 +51,10 @@ do
 done
 
 if [ "${apk}" == "" ];then
-    json_latest=$(curl -skL -H "${{ secrets.HEADERS }}" "https://api.github.com/repos/tiann/KernelSU/releases/latest")
+    json_latest=$(curl -skL -H "${headers}" "https://api.github.com/repos/tiann/KernelSU/releases/latest")
     json_asset=$(echo ${json_latest} | jq '.assets[] | select(.content_type == "application/vnd.android.package-archive")')
     apk_name=$(echo ${json_asset} | jq -r .name)
     apk_url=$(echo ${json_asset} | jq -r .browser_download_url)
     echo "Manager: ${apk_name}"
-    curl -skL -H "${{ secrets.HEADERS }}" -o "${GITHUB_WORKSPACE}/${apk_name}" "${apk_url}"
+    curl -skL -H "${headers}" -o "${GITHUB_WORKSPACE}/${apk_name}" "${apk_url}"
 fi
