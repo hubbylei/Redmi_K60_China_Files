@@ -5,9 +5,6 @@ on:
   schedule:
     - cron: 0 0 * * *
 
-env:
-  TZ: Asia/Shanghai
-
 jobs:
   check:
     runs-on: ubuntu-latest
