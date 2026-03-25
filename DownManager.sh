@@ -31,26 +31,26 @@ do
                     continue
                 fi
                 rm -f "${WorkDir}/manager.zip"
-                apk=$(ls *.apk)
-                apk_ver=$(echo ${apk} | sed 's/^.*_\(.*\)-.*/\1/')
+                apk_name=$(ls *.apk)
+                apk_ver=$(echo ${apk_name} | sed 's/^.*_\(.*\)-.*/\1/')
                 if [ "${apk_ver}" == "${KSU_ver}" ];then
-                    echo "Manager: ${apk}"
+                    echo "Manager: ${apk_name}"
                     break
                 else
-                    rm -f "${WorkDir}/${apk}"
-                    apk=""
+                    rm -f "${WorkDir}/${apk_name}"
+                    apk_name=""
                 fi
             fi
         fi
         let j++
     done
-    if [ "${apk}" != "" ];then
+    if [ "${apk_name}" != "" ];then
         break
     fi
     let i++
 done
 
-if [ "${apk}" == "" ];then
+if [ "${apk_name}" == "" ];then
     json_latest=$(curl -skL -H "${headers}" "https://api.github.com/repos/tiann/KernelSU/releases/latest")
     json_asset=$(echo ${json_latest} | jq '.assets[] | select(.content_type == "application/vnd.android.package-archive")')
     apk_name=$(echo ${json_asset} | jq -r .name)
