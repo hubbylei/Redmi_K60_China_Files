@@ -43,15 +43,15 @@ jobs:
         if [ -f ${GITHUB_WORKSPACE}/commitHash ];then
           cacheVer=$(cat ${GITHUB_WORKSPACE}/commitHash)
         fi
-        echo -e "CacheVer:\n${cacheVer}"
         getVer=KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}-${{ steps.getKernel.outputs.Kernel_HEAD }}
-        echo -e "GetVer:\n${getVer}"
-        if [ "${cacheVer}" != "${getVer}" ];then
-          echo "build=true" >> "$GITHUB_OUTPUT"
-          echo ${getVer} | tee ${GITHUB_WORKSPACE}/commitHash
-          touch ${GITHUB_WORKSPACE}/commitHash
-        else
+        echo "CacheVer: ${cacheVer}"
+        echo "GetVer: ${getVer}"
+        if [ "${cacheVer}" == "${getVer}" ];then
           echo "build=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "build=true" >> "$GITHUB_OUTPUT"
+          echo ${getVer} > ${GITHUB_WORKSPACE}/commitHash
+          touch ${GITHUB_WORKSPACE}/commitHash
         fi
 
     - name: Auto compile
