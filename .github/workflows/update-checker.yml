@@ -58,10 +58,10 @@ jobs:
       if: steps.save.outputs.build == 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
-        event-type: Auto compile
+        event-type: AutoCompile
 
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
       with:
         retain_days: 0
-        keep_minimum_runs: 1
+        keep_minimum_runs: 3
