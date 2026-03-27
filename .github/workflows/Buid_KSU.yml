@@ -31,14 +31,18 @@ jobs:
         echo "Kernel_HEAD=${Kernel_HEAD}" >> $GITHUB_OUTPUT
 
     - name: Setup KernelSU
+      id: ksu
       run: |
         cd ${GITHUB_WORKSPACE}/android-kernel
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+        cd ${GITHUB_WORKSPACE}/android-kernel/KernelSU
+        KSU_ver=$(($(git rev-list --count HEAD) + 30000))
         if [ -d ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ];then
             rm -rf ${GITHUB_WORKSPACE}/android-kernel/KernelSU/kernel/include/uapi
             cp -rf ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ${GITHUB_WORKSPACE}/android-kernel/KernelSU/kernel/include/
-            ls -l ${GITHUB_WORKSPACE}/android-kernel/KernelSU/kernel/include
+            sed -i 's,uapi\/app_profile.h,include\/uapi\/app_profile.h,g' ${GITHUB_WORKSPACE}/android-kernel/common/drivers/kernelsu/policy/allowlist.h
         fi
+        echo "KSU_ver=${KSU_ver}" >> $GITHUB_OUTPUT
 
     - name: Build Image
       id: build
@@ -63,10 +67,7 @@ jobs:
         PATCHLEVEL=$(grep "^PATCHLEVEL = .*$" Makefile | awk '{print $3}')
         SUBLEVEL=$(grep "^SUBLEVEL = .*$" Makefile | awk '{print $3}')
         Kernel_ver="android12-${VERSION}.${PATCHLEVEL}.${SUBLEVEL}"
-        cd ${GITHUB_WORKSPACE}/android-kernel/KernelSU
-        KSU_ver=$(($(git rev-list --count HEAD) + 30000))
         echo "kernel_ver=${Kernel_ver}" >> $GITHUB_OUTPUT
-        echo "KSU_ver=${KSU_ver}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
 
     - name: Zip AnyKernel3
@@ -76,7 +77,7 @@ jobs:
         unzip AnyKernel3.zip -d ${GITHUB_WORKSPACE}/AnyKernel3
         cp ${GITHUB_WORKSPACE}/android-kernel/out/*/dist/Image ${GITHUB_WORKSPACE}/AnyKernel3/
         cd ${GITHUB_WORKSPACE}/AnyKernel3
-        zip -r ${GITHUB_WORKSPACE}/Kernel-SU-${{ steps.version.outputs.KSU_ver }}-${{ steps.version.outputs.kernel_ver }}.zip *
+        zip -r ${GITHUB_WORKSPACE}/Kernel-SU-${{ steps.ksu.outputs.KSU_ver }}-${{ steps.version.outputs.kernel_ver }}.zip *
 
     - name: Download Manager
       id: apk
@@ -86,7 +87,7 @@ jobs:
         apk=$(ls *.apk)
         echo "apk_name=${apk}" >> $GITHUB_OUTPUT
       env:
-        KSU: ${{ steps.version.outputs.KSU_ver }}
+        KSU: ${{ steps.ksu.outputs.KSU_ver }}
         HEADERS: ${{ secrets.HEADERS }}
 
     - name: Generate release tag
@@ -94,12 +95,12 @@ jobs:
       if: steps.version.outputs.status == 'success' && !cancelled()
       run: |
         echo "## :mega:Update content" > release.txt
-        echo "![](https://img.shields.io/github/downloads/${{ github.repository }}/Kernel-SU-${{ steps.version.outputs.KSU_ver }}/total?style=flat-square)" >> release.txt
+        echo "![](https://img.shields.io/github/downloads/${{ github.repository }}/Kernel-SU-${{ steps.ksu.outputs.KSU_ver }}/total?style=flat-square)" >> release.txt
         echo "### Info" >> ${GITHUB_WORKSPACE}/release.txt
         echo "**:minidisc: Latest Kernel: ${{ steps.version.outputs.kernel_ver }}(${{ steps.source.outputs.Kernel_HEAD }})**" >> release.txt
-        echo "**:minidisc: Latest Kernel-SU: ${{ steps.version.outputs.KSU_ver }}**" >> release.txt
+        echo "**:minidisc: Latest Kernel-SU: ${{ steps.ksu.outputs.KSU_ver }}**" >> release.txt
         touch release.txt
-        tag=Kernel-SU-${{ steps.version.outputs.KSU_ver }}
+        tag=Kernel-SU-${{ steps.ksu.outputs.KSU_ver }}
         echo "release_tag=${tag}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
 
