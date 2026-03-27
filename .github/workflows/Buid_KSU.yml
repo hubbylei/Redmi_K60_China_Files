@@ -38,9 +38,7 @@ jobs:
         cd ${GITHUB_WORKSPACE}/android-kernel/KernelSU
         KSU_ver=$(($(git rev-list --count HEAD) + 30000))
         if [ -d ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ];then
-            rm -rf ${GITHUB_WORKSPACE}/android-kernel/KernelSU/kernel/include/uapi
-            cp -rf ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ${GITHUB_WORKSPACE}/android-kernel/KernelSU/kernel/include/
-            sed -i 's,uapi\/app_profile.h,include\/uapi\/app_profile.h,g' ${GITHUB_WORKSPACE}/android-kernel/common/drivers/kernelsu/policy/allowlist.h
+            cp -rf ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ${GITHUB_WORKSPACE}/android-kernel/common/include/
         fi
         echo "KSU_ver=${KSU_ver}" >> $GITHUB_OUTPUT
 
