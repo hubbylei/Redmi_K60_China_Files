@@ -34,10 +34,10 @@ jobs:
       run: |
         cd ${GITHUB_WORKSPACE}/android-kernel
         curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-        if [ -d ${GITHUB_WORKSPACE}/android-kernel/KernelSU ];then
+        if [ -d ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ];then
             ln -snf ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ${GITHUB_WORKSPACE}/android-kernel/KernelSU/kernel/include/uapi
         fi
-        ls -l ${GITHUB_WORKSPACE}/common/drivers/kernelsu/include
+        ls -l ${GITHUB_WORKSPACE}/common/drivers/kernelsu
 
     - name: Build Image
       id: build
