@@ -37,6 +37,7 @@ jobs:
         if [ -d ${GITHUB_WORKSPACE}/android-kernel/KernelSU ];then
             ln -snf ${GITHUB_WORKSPACE}/android-kernel/KernelSU/uapi ${GITHUB_WORKSPACE}/android-kernel/KernelSU/kernel/include/uapi
         fi
+        ls -l ${GITHUB_WORKSPACE}/common/drivers/kernelsu/include
 
     - name: Build Image
       id: build
