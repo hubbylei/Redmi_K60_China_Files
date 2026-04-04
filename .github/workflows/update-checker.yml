@@ -40,8 +40,8 @@ jobs:
     - name: Compare Version
       id: compare
       run: |
-        cacheVer=${{ steps.getversion.outputs.KSU_VER }}-${{ steps.getversion.outputs.Kernel_VER }}
-        getVer=${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_HEAD }}
+        cacheVer=${{ steps.getversion.outputs.KSU_VER }}
+        getVer=${{ steps.getKSU.outputs.KSU }}
         echo "CacheVer: $cacheVer"
         echo "GetVer: $getVer"
         if [ "$cacheVer" != "$getVer" ];then
