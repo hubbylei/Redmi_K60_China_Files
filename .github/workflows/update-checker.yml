@@ -29,30 +29,24 @@ jobs:
         echo "Kernel_VER=${Kernel_VER}" >> "$GITHUB_OUTPUT"
         echo "Kernel_HEAD=${Kernel_HEAD}" >> "$GITHUB_OUTPUT"
 
-    - name: Get Cache Version
-      id: getcache
-      uses: actions/cache@v4
-      with:
-        path: commitHash
-        key: HEAD-${{ github.sha }}
-        restore-keys: HEAD-
+    - name: Get Version
+      id: getversion
+      run: |
+        kernel_v=$(curl -skl https://api.github.com/repos/hubbylei/Redmi_K60_China_Files/releases/latest | jq -r .body | grep "Latest Kernel:" | awk -F": " '{print $2}')
+        ksu_v=$(curl -skl https://api.github.com/repos/hubbylei/Redmi_K60_China_Files/releases/latest | jq -r .body | grep "Latest Kernel-SU:" | awk -F": " '{print $2}')
+        echo "Kernel_VER=${kernel_v}" >> "$GITHUB_OUTPUT"
+        echo "KSU_VER=${ksu_v}" >> "$GITHUB_OUTPUT"
 
     - name: Save New Version
       id: save
       run: |
-        if [ -d commitHash ];then
-          cacheVer=$(ls commitHash)
-        fi
-        getVer=KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}-${{ steps.getKernel.outputs.Kernel_HEAD }}
+        cacheVer=KSU-${{ steps.getversion.outputs.KSU_VER }}-${{ steps.getversion.outputs.KSU_VER }}
+        getVer=KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}(${{ steps.getKernel.outputs.Kernel_HEAD }})
         echo "CacheVer: ${cacheVer}"
         echo "GetVer: ${getVer}"
         if [ "${cacheVer}" == "${getVer}" ];then
           echo "build=false" >> "$GITHUB_OUTPUT"
         else
-          rm -rf commitHash
-          mkdir -p commitHash
-          echo ${getVer} > commitHash/${getVer}
-          touch ${GITHUB_WORKSPACE}/commitHash
           echo "build=true" >> "$GITHUB_OUTPUT"
         fi
 
