@@ -44,9 +44,9 @@ jobs:
         ksu="${{ steps.getKSU.outputs.KSU }}"
         ker_v="${{ steps.getversion.outputs.Kernel_VER }}"
         ker="${{ steps.getKernel.outputs.Kernel_HEAD }}"
-        if [ $ksu_v != ksu ];then
+        if [ $ksu_v != $ksu ];then
           echo "build=true" >> "$GITHUB_OUTPUT"
-        elif [ ker_v != ker ];then
+        elif [ $ker_v != $ker ];then
           echo "build=true" >> "$GITHUB_OUTPUT"
         else
           echo "build=false" >> "$GITHUB_OUTPUT"
