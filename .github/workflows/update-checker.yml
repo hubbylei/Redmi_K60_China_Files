@@ -41,7 +41,7 @@ jobs:
       id: compare
       run: |
         cacheVer="KSU-${{ steps.getversion.outputs.KSU_VER }}-${{ steps.getversion.outputs.Kernel_VER }}"
-        getVer="KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}(${{ steps.getKernel.outputs.Kernel_HEAD }})"
+        getVer="KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}-${{ steps.getKernel.outputs.Kernel_HEAD }}"
         echo "CacheVer: ${cacheVer}"
         echo "GetVer: ${getVer}"
         if [ "${cacheVer}" == "${getVer}" ];then
