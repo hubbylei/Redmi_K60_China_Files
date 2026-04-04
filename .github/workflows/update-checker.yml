@@ -37,10 +37,10 @@ jobs:
         echo "Kernel_VER=${kernel_v}" >> "$GITHUB_OUTPUT"
         echo "KSU_VER=${ksu_v}" >> "$GITHUB_OUTPUT"
 
-    - name: Save New Version
-      id: save
+    - name: Compare Version
+      id: compare
       run: |
-        cacheVer=KSU-${{ steps.getversion.outputs.KSU_VER }}-${{ steps.getversion.outputs.KSU_VER }}
+        cacheVer=KSU-${{ steps.getversion.outputs.KSU_VER }}-${{ steps.getversion.outputs.Kernel_VER }}
         getVer=KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}(${{ steps.getKernel.outputs.Kernel_HEAD }})
         echo "CacheVer: ${cacheVer}"
         echo "GetVer: ${getVer}"
@@ -51,7 +51,7 @@ jobs:
         fi
 
     - name: Auto compile
-      if: steps.save.outputs.build == 'true'
+      if: steps.compare.outputs.build == 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
         event-type: AutoCompile
