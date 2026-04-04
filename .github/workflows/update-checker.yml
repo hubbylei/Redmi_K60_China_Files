@@ -40,8 +40,8 @@ jobs:
     - name: Save New Version
       id: save
       run: |
-        if [ -f ${GITHUB_WORKSPACE}/commitHash ];then
-          cacheVer=$(cat ${GITHUB_WORKSPACE}/commitHash)
+        if [ -d commitHash ];then
+          cacheVer=$(ls commitHash)
         fi
         getVer=KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}-${{ steps.getKernel.outputs.Kernel_HEAD }}
         echo "CacheVer: ${cacheVer}"
@@ -49,9 +49,11 @@ jobs:
         if [ "${cacheVer}" == "${getVer}" ];then
           echo "build=false" >> "$GITHUB_OUTPUT"
         else
-          echo "build=true" >> "$GITHUB_OUTPUT"
-          echo ${getVer} > ${GITHUB_WORKSPACE}/commitHash
+          rm -rf commitHash
+          mkdir -p commitHash
+          echo ${getVer} > commitHash/${getVer}
           touch ${GITHUB_WORKSPACE}/commitHash
+          echo "build=true" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Auto compile
