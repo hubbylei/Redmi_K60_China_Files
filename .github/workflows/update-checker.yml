@@ -42,12 +42,12 @@ jobs:
       run: |
         cacheVer=${{ steps.getversion.outputs.KSU_VER }}-${{ steps.getversion.outputs.Kernel_VER }}
         getVer=${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_HEAD }}
-        echo "CacheVer: ${cacheVer}"
-        echo "GetVer: ${getVer}"
-        if [[ "${cacheVer}" == "${getVer}" ]];then
-          echo "build=false" >> "$GITHUB_OUTPUT"
-        else
+        echo "CacheVer: $cacheVer"
+        echo "GetVer: $getVer"
+        if [ "$cacheVer" != "$getVer" ];then
           echo "build=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "build=false" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Auto compile
