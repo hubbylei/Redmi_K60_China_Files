@@ -40,7 +40,7 @@ jobs:
     - name: Compare Version
       id: compare
       run: |
-        if [ "${{ steps.getversion.outputs.KSU_VER }}" = "${{ steps.getKSU.outputs.KSU }}" ] && [ "${{ steps.getversion.outputs.Kernel_VER }}" = "${{ steps.getKernel.outputs.Kernel_HEAD }}" ];then
+        if [ "${{ steps.getversion.outputs.KSU_VER }}" = "${{ steps.getKSU.outputs.KSU }}" ];then
           echo "build=false" >> "$GITHUB_OUTPUT"
         else
           echo "build=true" >> "$GITHUB_OUTPUT"
