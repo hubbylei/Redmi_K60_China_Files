@@ -32,8 +32,8 @@ jobs:
     - name: Get Version
       id: getversion
       run: |
-        kernel_v=$(curl -skl https://api.github.com/repos/hubbylei/Redmi_K60_China_Files/releases/latest | jq -r .body | grep "Latest Kernel:" | awk -F": " '{print $2}' | awk -F"-" '{print $3}')
-        ksu_v=$(curl -skl https://api.github.com/repos/hubbylei/Redmi_K60_China_Files/releases/latest | jq -r .tag_name | awk -F"-" '{print $3}')
+        kernel_v=$(curl -skL https://api.github.com/repos/hubbylei/Redmi_K60_China_Files/releases/latest | jq -r .body | grep "Latest Kernel:" | awk -F": " '{print $2}' | awk -F"-" '{print $3}')
+        ksu_v=$(curl -skL https://api.github.com/repos/hubbylei/Redmi_K60_China_Files/releases/latest | jq -r .tag_name | awk -F"-" '{print $3}')
         echo "Kernel_VER=${kernel_v}" >> "$GITHUB_OUTPUT"
         echo "KSU_VER=${ksu_v}" >> "$GITHUB_OUTPUT"
 
