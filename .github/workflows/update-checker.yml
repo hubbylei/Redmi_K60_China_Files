@@ -44,7 +44,7 @@ jobs:
         getVer="KSU-${{ steps.getKSU.outputs.KSU }}-${{ steps.getKernel.outputs.Kernel_VER }}(${{ steps.getKernel.outputs.Kernel_HEAD }})"
         echo "CacheVer: ${cacheVer}"
         echo "GetVer: ${getVer}"
-        if [ "${cacheVer}" == "${getVer}" ];then
+        if [ "${cacheVer}" = "${getVer}" ];then
           echo "build=false" >> "$GITHUB_OUTPUT"
         else
           echo "build=true" >> "$GITHUB_OUTPUT"
