@@ -97,7 +97,7 @@ jobs:
         echo "## :mega:Update content" > release.txt
         echo "![](https://img.shields.io/github/downloads/${{ github.repository }}/Kernel-SU-${{ steps.ksu.outputs.KSU_ver }}/total?style=flat-square)" >> release.txt
         echo "### Info" >> ${GITHUB_WORKSPACE}/release.txt
-        echo "Latest Kernel: ${{ steps.version.outputs.kernel_ver }}-${{ steps.source.outputs.Kernel_HEAD }}" >> release.txt
+        echo "Latest Kernel: ${{ steps.version.outputs.kernel_ver }}(${{ steps.source.outputs.Kernel_HEAD }})" >> release.txt
         echo "Latest Kernel-SU: ${{ steps.ksu.outputs.KSU_ver }}" >> release.txt
         touch release.txt
         tag=Kernel-SU-${{ steps.ksu.outputs.KSU_ver }}
