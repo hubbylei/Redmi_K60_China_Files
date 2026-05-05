@@ -121,3 +121,12 @@ jobs:
       with:
         retain_days: 0
         keep_minimum_runs: 3
+
+    - name: Remove old Releases
+      if: steps.build.outputs.status == 'success' && !cancelled()
+      uses: dev-drprasad/delete-older-releases@master
+      with:
+        keep_latest: 50
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
