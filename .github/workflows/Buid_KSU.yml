@@ -129,9 +129,10 @@ jobs:
 
     - name: Remove old Releases
       if: steps.build.outputs.status == 'success' && !cancelled()
-      uses: dev-drprasad/delete-older-releases@master
+      uses: sgpublic/delete-release-action@master
       with:
-        keep_latest: 50
-        delete_tags: true
+        release-drop: true
+        release-keep-count: 50
+        release-drop-tag: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
